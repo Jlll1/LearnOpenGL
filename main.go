@@ -78,25 +78,43 @@ func main() {
 
 	var (
 		vertices = []float32{
-			-0.5, -0.5, 0,
+			0.5, 0.5, 0,
 			0.5, -0.5, 0,
-			0, 0.5, 0,
+			-0.5, -0.5, 0,
+			-0.5, 0.5, 0,
+		}
+		indices = []uint32{
+			0, 1, 3,
+			1, 2, 3,
 		}
 	)
 
-	var vbo, vao uint32
+	var vbo, vao, ebo uint32
+	defer gl.DeleteVertexArrays(1, &vao)
+	defer gl.DeleteBuffers(1, &vbo)
+	defer gl.DeleteBuffers(1, &ebo)
+	defer gl.DeleteProgram(shaderProgram)
+
 	gl.GenVertexArrays(1, &vao)
 	gl.GenBuffers(1, &vbo)
+	gl.GenBuffers(1, &ebo)
+
 	gl.BindVertexArray(vao)
 
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
 	gl.BufferData(gl.ARRAY_BUFFER, 4*len(vertices), gl.Ptr(vertices), gl.STATIC_DRAW)
+
+	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo)
+	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, 4*len(indices), gl.Ptr(indices), gl.STATIC_DRAW)
 
 	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 12, nil)
 	gl.EnableVertexAttribArray(0)
 
 	gl.BindBuffer(gl.ARRAY_BUFFER, 0)
 	gl.BindVertexArray(0)
+
+	// wireframe mode
+	//gl.PolygonMode(gl.FRONT_AND_BACK, gl.LINE)
 
 	for !window.ShouldClose() {
 		processInput(window)
@@ -106,7 +124,7 @@ func main() {
 
 		gl.UseProgram(shaderProgram)
 		gl.BindVertexArray(vao)
-		gl.DrawArrays(gl.TRIANGLES, 0, 3)
+		gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, nil)
 
 		window.SwapBuffers()
 		glfw.PollEvents()
