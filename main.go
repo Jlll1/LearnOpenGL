@@ -40,6 +40,9 @@ func main() {
 	for !window.ShouldClose() {
 		processInput(window)
 
+		gl.ClearColor(0.5, 0.5, 0.5, 0.5)
+		gl.Clear(gl.COLOR_BUFFER_BIT)
+
 		window.SwapBuffers()
 		glfw.PollEvents()
 	}
