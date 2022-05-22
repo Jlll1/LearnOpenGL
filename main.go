@@ -37,6 +37,20 @@ func main() {
 	}
 	window.SetFramebufferSizeCallback(framebufferSizeCallback)
 
+	var (
+		vertices = []float32{
+			-0.5, -0.5, 0,
+			0.5, -0.5, 0,
+			0, 0.5, 0,
+		}
+	)
+
+	var vbo uint32
+	gl.GenBuffers(1, &vbo)
+	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
+
+	gl.BufferData(gl.ARRAY_BUFFER, 4*len(vertices), vertices, gl.STATIC_DRAW)
+
 	for !window.ShouldClose() {
 		processInput(window)
 
