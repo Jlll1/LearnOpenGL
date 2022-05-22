@@ -39,7 +39,6 @@ func main() {
 	defer glfw.Terminate()
 
 	glfw.Init()
-	glfw.WindowHint(glfw.Resizable, glfw.False)
 	glfw.WindowHint(glfw.ContextVersionMajor, 3)
 	glfw.WindowHint(glfw.ContextVersionMinor, 3)
 	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
@@ -85,12 +84,9 @@ func main() {
 		}
 	)
 
-	var vbo uint32
-	gl.GenBuffers(1, &vbo)
-
-	var vao uint32
+	var vbo, vao uint32
 	gl.GenVertexArrays(1, &vao)
-
+	gl.GenBuffers(1, &vbo)
 	gl.BindVertexArray(vao)
 
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
@@ -99,14 +95,18 @@ func main() {
 	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 12, nil)
 	gl.EnableVertexAttribArray(0)
 
-	gl.UseProgram(shaderProgram)
-	gl.BindVertexArray(vao)
+	gl.BindBuffer(gl.ARRAY_BUFFER, 0)
+	gl.BindVertexArray(0)
 
 	for !window.ShouldClose() {
 		processInput(window)
 
 		gl.ClearColor(0.5, 0.5, 0.5, 0.5)
 		gl.Clear(gl.COLOR_BUFFER_BIT)
+
+		gl.UseProgram(shaderProgram)
+		gl.BindVertexArray(vao)
+		gl.DrawArrays(gl.TRIANGLES, 0, 3)
 
 		window.SwapBuffers()
 		glfw.PollEvents()
