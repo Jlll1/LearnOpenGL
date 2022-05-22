@@ -74,7 +74,6 @@ func main() {
 	gl.AttachShader(shaderProgram, fragmentShader)
 	gl.LinkProgram(shaderProgram)
 
-	gl.UseProgram(shaderProgram)
 	gl.DeleteShader(vertexShader)
 	gl.DeleteShader(fragmentShader)
 
@@ -88,9 +87,20 @@ func main() {
 
 	var vbo uint32
 	gl.GenBuffers(1, &vbo)
-	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
 
+	var vao uint32
+	gl.GenVertexArrays(1, &vao)
+
+	gl.BindVertexArray(vao)
+
+	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
 	gl.BufferData(gl.ARRAY_BUFFER, 4*len(vertices), gl.Ptr(vertices), gl.STATIC_DRAW)
+
+	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 12, nil)
+	gl.EnableVertexAttribArray(0)
+
+	gl.UseProgram(shaderProgram)
+	gl.BindVertexArray(vao)
 
 	for !window.ShouldClose() {
 		processInput(window)
