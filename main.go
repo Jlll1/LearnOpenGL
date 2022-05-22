@@ -7,6 +7,17 @@ import (
 	"github.com/go-gl/glfw/v3.2/glfw"
 )
 
+const (
+	vertexShaderSource = `
+		#version 330 core
+		layout (location = 0) in vec3 aPos;
+		void main()
+		{
+			gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0)
+		}
+	` + "\x00"
+)
+
 func processInput(window *glfw.Window) {
 	if window.GetKey(glfw.KeyEscape) == glfw.Press {
 		window.SetShouldClose(true)
@@ -37,6 +48,12 @@ func main() {
 	}
 	window.SetFramebufferSizeCallback(framebufferSizeCallback)
 
+	vertexShader := gl.CreateShader(gl.VERTEX_SHADER)
+	vertexShaderSources, free := gl.Strs(vertexShaderSource)
+	gl.ShaderSource(vertexShader, 1, vertexShaderSources, nil)
+	free()
+	gl.CompileShader(vertexShader)
+
 	var (
 		vertices = []float32{
 			-0.5, -0.5, 0,
@@ -49,7 +66,7 @@ func main() {
 	gl.GenBuffers(1, &vbo)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
 
-	gl.BufferData(gl.ARRAY_BUFFER, 4*len(vertices), vertices, gl.STATIC_DRAW)
+	gl.BufferData(gl.ARRAY_BUFFER, 4*len(vertices), gl.Ptr(vertices), gl.STATIC_DRAW)
 
 	for !window.ShouldClose() {
 		processInput(window)
