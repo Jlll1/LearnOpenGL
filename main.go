@@ -7,6 +7,12 @@ import (
 	"github.com/go-gl/glfw/v3.2/glfw"
 )
 
+func processInput(window *glfw.Window) {
+	if window.GetKey(glfw.KeyEscape) == glfw.Press {
+		window.SetShouldClose(true)
+	}
+}
+
 func main() {
 	runtime.LockOSThread()
 
@@ -32,6 +38,8 @@ func main() {
 	window.SetFramebufferSizeCallback(framebufferSizeCallback)
 
 	for !window.ShouldClose() {
+		processInput(window)
+
 		window.SwapBuffers()
 		glfw.PollEvents()
 	}
