@@ -69,6 +69,15 @@ func main() {
 	free()
 	gl.CompileShader(fragmentShader)
 
+	shaderProgram := gl.CreateProgram()
+	gl.AttachShader(shaderProgram, vertexShader)
+	gl.AttachShader(shaderProgram, fragmentShader)
+	gl.LinkProgram(shaderProgram)
+
+	gl.UseProgram(shaderProgram)
+	gl.DeleteShader(vertexShader)
+	gl.DeleteShader(fragmentShader)
+
 	var (
 		vertices = []float32{
 			-0.5, -0.5, 0,
