@@ -30,6 +30,10 @@ const (
 func processInput(window *glfw.Window) {
 	if window.GetKey(glfw.KeyEscape) == glfw.Press {
 		window.SetShouldClose(true)
+	} else if window.GetKey(glfw.Key1) == glfw.Press {
+		gl.PolygonMode(gl.FRONT_AND_BACK, gl.FILL)
+	} else if window.GetKey(glfw.Key2) == glfw.Press {
+		gl.PolygonMode(gl.FRONT_AND_BACK, gl.LINE)
 	}
 }
 
@@ -112,9 +116,6 @@ func main() {
 
 	gl.BindBuffer(gl.ARRAY_BUFFER, 0)
 	gl.BindVertexArray(0)
-
-	// wireframe mode
-	//gl.PolygonMode(gl.FRONT_AND_BACK, gl.LINE)
 
 	for !window.ShouldClose() {
 		processInput(window)
