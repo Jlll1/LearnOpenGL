@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math"
 	"runtime"
 
 	"github.com/go-gl/gl/v3.3-core/gl"
@@ -11,6 +12,7 @@ const (
 	vertexShaderSource = `
 		#version 330 core
 		layout (location = 0) in vec3 aPos;
+
 		void main()
 		{
 			gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
@@ -20,9 +22,12 @@ const (
 	fragmentShaderSource = `
 		#version 330 core
 		out vec4 FragColor;
+
+		uniform vec4 ourColor;
+
 		void main()
 		{
-			FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
+			FragColor = ourColor;
 		}
 	` + "\x00"
 )
@@ -124,6 +129,12 @@ func main() {
 		gl.Clear(gl.COLOR_BUFFER_BIT)
 
 		gl.UseProgram(shaderProgram)
+
+		timeValue := glfw.GetTime()
+		greenValue := float32(math.Sin(timeValue)/2) + 0.5
+		vertexColorLocation := gl.GetUniformLocation(shaderProgram, gl.Str("ourColor\x00"))
+		gl.Uniform4f(vertexColorLocation, 0, greenValue, 0, 1)
+
 		gl.BindVertexArray(vao)
 		gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, nil)
 
