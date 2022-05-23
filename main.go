@@ -1,7 +1,6 @@
 package main
 
 import (
-	"math"
 	"runtime"
 
 	"github.com/go-gl/gl/v3.3-core/gl"
@@ -12,22 +11,25 @@ const (
 	vertexShaderSource = `
 		#version 330 core
 		layout (location = 0) in vec3 aPos;
+		layout (location = 1) in vec3 aColor;
+
+		out vec3 ourColor;
 
 		void main()
 		{
 			gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+			ourColor = aColor;
 		}
 	` + "\x00"
 
 	fragmentShaderSource = `
 		#version 330 core
 		out vec4 FragColor;
-
-		uniform vec4 ourColor;
+		in vec3 ourColor;
 
 		void main()
 		{
-			FragColor = ourColor;
+			FragColor = vec4(ourColor, 1.0);
 		}
 	` + "\x00"
 )
@@ -87,40 +89,32 @@ func main() {
 
 	var (
 		vertices = []float32{
-			0.5, 0.5, 0,
-			0.5, -0.5, 0,
-			-0.5, -0.5, 0,
-			-0.5, 0.5, 0,
-		}
-		indices = []uint32{
-			0, 1, 3,
-			1, 2, 3,
+			0.5, -0.5, 0.0, 1.0, 0.0, 0.0,
+			-0.5, -0.5, 0.0, 0.0, 1.0, 0.0,
+			0.0, 0.5, 0.0, 0.0, 0.0, 1.0,
 		}
 	)
 
-	var vbo, vao, ebo uint32
+	var vbo, vao uint32
 	defer gl.DeleteVertexArrays(1, &vao)
 	defer gl.DeleteBuffers(1, &vbo)
-	defer gl.DeleteBuffers(1, &ebo)
 	defer gl.DeleteProgram(shaderProgram)
 
 	gl.GenVertexArrays(1, &vao)
 	gl.GenBuffers(1, &vbo)
-	gl.GenBuffers(1, &ebo)
 
 	gl.BindVertexArray(vao)
 
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
 	gl.BufferData(gl.ARRAY_BUFFER, 4*len(vertices), gl.Ptr(vertices), gl.STATIC_DRAW)
 
-	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo)
-	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, 4*len(indices), gl.Ptr(indices), gl.STATIC_DRAW)
-
-	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 12, nil)
+	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 24, nil)
 	gl.EnableVertexAttribArray(0)
 
-	gl.BindBuffer(gl.ARRAY_BUFFER, 0)
-	gl.BindVertexArray(0)
+	gl.VertexAttribPointer(1, 3, gl.FLOAT, false, 24, gl.PtrOffset(12))
+	gl.EnableVertexAttribArray(1)
+
+	gl.UseProgram(shaderProgram)
 
 	for !window.ShouldClose() {
 		processInput(window)
@@ -128,15 +122,8 @@ func main() {
 		gl.ClearColor(0.5, 0.5, 0.5, 0.5)
 		gl.Clear(gl.COLOR_BUFFER_BIT)
 
-		gl.UseProgram(shaderProgram)
-
-		timeValue := glfw.GetTime()
-		greenValue := float32(math.Sin(timeValue)/2) + 0.5
-		vertexColorLocation := gl.GetUniformLocation(shaderProgram, gl.Str("ourColor\x00"))
-		gl.Uniform4f(vertexColorLocation, 0, greenValue, 0, 1)
-
 		gl.BindVertexArray(vao)
-		gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, nil)
+		gl.DrawArrays(gl.TRIANGLES, 0, 3)
 
 		window.SwapBuffers()
 		glfw.PollEvents()
