@@ -80,6 +80,8 @@ func main() {
 		gl.ClearColor(0.5, 0.5, 0.5, 0.5)
 		gl.Clear(gl.COLOR_BUFFER_BIT)
 
+		ourShader.SetUniformFloat("offsetX", 0.5)
+
 		gl.BindVertexArray(vao)
 		gl.DrawArrays(gl.TRIANGLES, 0, 3)
 
