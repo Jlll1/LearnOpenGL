@@ -1,37 +1,11 @@
 package main
 
 import (
+	"gettingstarted/shader"
 	"runtime"
 
 	"github.com/go-gl/gl/v3.3-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
-)
-
-const (
-	vertexShaderSource = `
-		#version 330 core
-		layout (location = 0) in vec3 aPos;
-		layout (location = 1) in vec3 aColor;
-
-		out vec3 ourColor;
-
-		void main()
-		{
-			gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
-			ourColor = aColor;
-		}
-	` + "\x00"
-
-	fragmentShaderSource = `
-		#version 330 core
-		out vec4 FragColor;
-		in vec3 ourColor;
-
-		void main()
-		{
-			FragColor = vec4(ourColor, 1.0);
-		}
-	` + "\x00"
 )
 
 func processInput(window *glfw.Window) {
@@ -67,25 +41,10 @@ func main() {
 	}
 	window.SetFramebufferSizeCallback(framebufferSizeCallback)
 
-	vertexShader := gl.CreateShader(gl.VERTEX_SHADER)
-	vertexShaderSources, free := gl.Strs(vertexShaderSource)
-	gl.ShaderSource(vertexShader, 1, vertexShaderSources, nil)
-	free()
-	gl.CompileShader(vertexShader)
-
-	fragmentShader := gl.CreateShader(gl.FRAGMENT_SHADER)
-	fragmentShaderSources, free := gl.Strs(fragmentShaderSource)
-	gl.ShaderSource(fragmentShader, 1, fragmentShaderSources, nil)
-	free()
-	gl.CompileShader(fragmentShader)
-
-	shaderProgram := gl.CreateProgram()
-	gl.AttachShader(shaderProgram, vertexShader)
-	gl.AttachShader(shaderProgram, fragmentShader)
-	gl.LinkProgram(shaderProgram)
-
-	gl.DeleteShader(vertexShader)
-	gl.DeleteShader(fragmentShader)
+	ourShader, err := shader.LoadShader("shaders/shader.vs", "shaders/shader.fs")
+	if err != nil {
+		panic(err)
+	}
 
 	var (
 		vertices = []float32{
@@ -98,7 +57,6 @@ func main() {
 	var vbo, vao uint32
 	defer gl.DeleteVertexArrays(1, &vao)
 	defer gl.DeleteBuffers(1, &vbo)
-	defer gl.DeleteProgram(shaderProgram)
 
 	gl.GenVertexArrays(1, &vao)
 	gl.GenBuffers(1, &vbo)
@@ -114,7 +72,7 @@ func main() {
 	gl.VertexAttribPointer(1, 3, gl.FLOAT, false, 24, gl.PtrOffset(12))
 	gl.EnableVertexAttribArray(1)
 
-	gl.UseProgram(shaderProgram)
+	ourShader.Use()
 
 	for !window.ShouldClose() {
 		processInput(window)
